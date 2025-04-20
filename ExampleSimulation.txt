@@ -1,4 +1,3 @@
-I'll walk you through a step-by-step simulation of how the package works, from installation to usage:
 
 ### Step 1: Installation
 ```bash
