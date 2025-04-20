@@ -1,0 +1,201 @@
+I'll walk you through a step-by-step simulation of how the package works, from installation to usage:
+
+### Step 1: Installation
+```bash
+pip install smart_mrag
+```
+This will install the package and all its dependencies (langchain, openai, faiss, etc.)
+
+### Step 2: Basic Usage Example
+Let's simulate a user trying to use the package:
+
+1. **Initial Setup**:
+```python
+from smart_mrag import SmartMRAG
+import os
+
+# User has their PDF file and API key
+pdf_path = "financial_report.pdf"
+api_key = "sk-..."  # User's OpenAI API key
+```
+
+2. **Simple Case - Using Default Models**:
+```python
+# Initialize with just the required parameters
+reader = SmartMRAG(
+    file_path=pdf_path,
+    api_key=api_key
+)
+# This will use:
+# - model_name="gpt-4" (default)
+# - embedding_model="text-embedding-ada-002" (default)
+```
+
+3. **Behind the Scenes**:
+- The PDF is loaded and split into chunks
+- Each chunk is converted to embeddings using text-embedding-ada-002
+- A FAISS vector store is created for efficient similarity search
+
+4. **Asking Questions**:
+```python
+# User asks a question
+answer = reader.ask_question("What was the company's revenue last year?")
+print(answer)
+```
+
+### Step 3: Advanced Usage Example
+Let's simulate a user who wants to use custom models:
+
+1. **Custom Model Setup**:
+```python
+# User wants to use a different model
+reader = SmartMRAG(
+    file_path=pdf_path,
+    api_key=api_key,
+    model_name="claude-3-opus",  # Custom model
+    embedding_model="claude-embeddings",  # Required for custom model
+    embedding_api_key="anthropic-api-key"  # Different API key for embeddings
+)
+```
+
+2. **Error Handling Example**:
+```python
+try:
+    # Missing embedding model for custom model
+    reader = SmartMRAG(
+        file_path=pdf_path,
+        api_key=api_key,
+        model_name="claude-3-opus"
+    )
+except ValueError as e:
+    print(f"Error: {e}")  # Will show "Embedding model is required when using a non-default model"
+```
+
+### Step 4: Interactive Usage Example
+Let's simulate the interactive example script:
+
+```python
+# User runs the example script
+from smart_mrag import SmartMRAG
+import os
+
+# Script prompts for API key
+api_key = input("Please enter your API key: ")
+
+# Shows available options
+print("\nAvailable default models:")
+print("1. gpt-4 (default)")
+print("2. gpt-4-turbo")
+print("3. gpt-3.5-turbo")
+print("4. Custom model")
+
+# User selects option 2
+model_choice = "2"
+
+# Script sets up gpt-4-turbo with default embedding
+reader = SmartMRAG(
+    file_path="financial_report.pdf",
+    api_key=api_key,
+    model_name="gpt-4-turbo"
+)
+
+# Interactive Q&A session
+print("\nEnter your questions about the document. Type 'quit' to exit.")
+while True:
+    question = input("\nYour question: ")
+    if question.lower() == 'quit':
+        break
+    
+    try:
+        answer = reader.ask_question(question)
+        print(f"\nAnswer: {answer}")
+    except Exception as e:
+        print(f"Error: {str(e)}")
+```
+
+### Step 5: Error Scenarios
+Let's simulate various error cases:
+
+1. **Invalid File Path**:
+```python
+try:
+    reader = SmartMRAG(
+        file_path="nonexistent.pdf",
+        api_key=api_key
+    )
+except FileNotFoundError as e:
+    print(f"Error: {e}")  # "File not found: nonexistent.pdf"
+```
+
+2. **Missing API Key**:
+```python
+try:
+    reader = SmartMRAG(
+        file_path=pdf_path
+        # No api_key provided
+    )
+except ValueError as e:
+    print(f"Error: {e}")  # "API key is required..."
+```
+
+3. **Custom Model without Embedding Model**:
+```python
+try:
+    reader = SmartMRAG(
+        file_path=pdf_path,
+        api_key=api_key,
+        model_name="custom-model"
+        # No embedding_model provided
+    )
+except ValueError as e:
+    print(f"Error: {e}")  # "Embedding model is required..."
+```
+
+### Step 6: Complete Workflow Example
+Here's a complete simulation of a typical workflow:
+
+```python
+# 1. Import and setup
+from smart_mrag import SmartMRAG
+import os
+
+# 2. User provides their PDF and API key
+pdf_path = "annual_report.pdf"
+api_key = os.getenv("OPENAI_API_KEY")
+
+# 3. Initialize with default settings
+reader = SmartMRAG(
+    file_path=pdf_path,
+    api_key=api_key
+)
+
+# 4. Document processing happens automatically:
+# - PDF is loaded
+# - Text is split into chunks
+# - Chunks are converted to embeddings
+# - Vector store is created
+
+# 5. User asks questions
+questions = [
+    "What was the company's revenue?",
+    "What are the main risks mentioned?",
+    "What is the CEO's vision for next year?"
+]
+
+for question in questions:
+    try:
+        answer = reader.ask_question(question)
+        print(f"\nQ: {question}")
+        print(f"A: {answer}")
+    except Exception as e:
+        print(f"Error answering question: {str(e)}")
+```
+
+This simulation shows how the package handles:
+- Different initialization scenarios
+- Error cases
+- Interactive usage
+- Document processing
+- Question answering
+- Model and embedding model management
+
