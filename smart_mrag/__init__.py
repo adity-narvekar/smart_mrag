@@ -11,15 +11,98 @@ import fitz
 from PIL import Image
 import base64
 import io
+from .core import SmartMRAG
+from .utils import ModelConfig
+
+__version__ = "0.1.0"
+
+# Define recommended model combinations
+RECOMMENDED_MODELS = {
+    "openai": {
+        "llm_models": [
+            "gpt-3.5-turbo",
+            "gpt-3.5-turbo-16k",
+            "gpt-4",
+            "gpt-4-32k",
+            "gpt-4-turbo-preview",
+            "gpt-4-vision-preview",
+            "gpt-4o",
+            "gpt-4o-mini",
+            "gpt-4o-turbo"
+        ],
+        "embedding_models": [
+            "text-embedding-ada-002",
+            "text-embedding-3-small",
+            "text-embedding-3-large",
+            "text-embedding-3-large-256"
+        ],
+        "requires": ["openai_api_key"]
+    },
+    "anthropic": {
+        "llm_models": ["claude-3-opus", "claude-3-sonnet", "claude-2.1"],
+        "embedding_models": ["text-embedding-ada-002", "text-embedding-3-small", "text-embedding-3-large"],
+        "requires": ["anthropic_api_key", "openai_api_key"]
+    },
+    "google": {
+        "llm_models": ["gemini-pro", "gemini-ultra"],
+        "embedding_models": ["textembedding-gecko", "textembedding-gecko-multilingual"],
+        "requires": ["google_api_key"]
+    }
+}
+
+def get_recommended_models():
+    """Returns a dictionary of recommended model combinations."""
+    return RECOMMENDED_MODELS
+
+def get_required_api_keys(llm_model, embedding_model):
+    """
+    Returns the API keys required for the given model combination.
+    
+    Args:
+        llm_model (str): The LLM model name
+        embedding_model (str): The embedding model name
+        
+    Returns:
+        list: List of required API key names
+    """
+    required_keys = set()
+    
+    # Check OpenAI models
+    if any(model in llm_model for model in ["gpt-3.5", "gpt-4"]):
+        required_keys.add("openai_api_key")
+    if any(model in embedding_model for model in ["text-embedding"]):
+        required_keys.add("openai_api_key")
+        
+    # Check Anthropic models
+    if any(model in llm_model for model in ["claude"]):
+        required_keys.add("anthropic_api_key")
+        
+    # Check Google models
+    if any(model in llm_model for model in ["gemini"]):
+        required_keys.add("google_api_key")
+    if any(model in embedding_model for model in ["textembedding-gecko"]):
+        required_keys.add("google_api_key")
+        
+    return list(required_keys)
+
+__all__ = ["SmartMRAG", "ModelConfig", "get_recommended_models", "get_required_api_keys"]
 
 class SmartMRAG:
     # Define default model combinations
     DEFAULT_MODELS = {
+        "gpt-4o": {
+            "embedding_model": "text-embedding-ada-002",
+            "provider": "openai"
+        },
         "gpt-4": {
             "embedding_model": "text-embedding-ada-002",
             "provider": "openai"
         },
         "gpt-4-turbo": {
+            "embedding_model": "text-embedding-ada-002",
+            "provider": "openai"
+        },
+        "gpt-4-vision": {
             "embedding_model": "text-embedding-ada-002",
             "provider": "openai"
         },
@@ -33,7 +116,7 @@ class SmartMRAG:
         self,
         file_path: str,
         api_key: Optional[str] = None,
-        model_name: str = "gpt-4",
+        model_name: str = "gpt-4o",
         embedding_model: Optional[str] = None,
         embedding_api_key: Optional[str] = None
     ):
@@ -43,7 +126,7 @@ class SmartMRAG:
         Args:
             file_path (str): Path to the PDF file
             api_key (str, optional): API key. If not provided, will look for OPENAI_API_KEY in environment variables
-            model_name (str, optional): Model name. Defaults to "gpt-4"
+            model_name (str, optional): Model name. Defaults to "gpt-4o"
             embedding_model (str, optional): Embedding model name. If not provided, will use default for the selected model
             embedding_api_key (str, optional): API key for embedding model if different from main API key
         """
@@ -97,7 +180,7 @@ class SmartMRAG:
         except Exception as e:
             raise Exception(f"Error loading PDF: {str(e)}")
     
-    def _break_into_chunks(self, chunk_size: int = 100, chunk_overlap: int = 30) -> List:
+    def _break_into_chunks(self, chunk_size: int = 1000, chunk_overlap: int = 200) -> List:
         """Split document into chunks."""
         try:
             text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
