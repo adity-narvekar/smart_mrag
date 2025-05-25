@@ -23,8 +23,8 @@ def test_basic_usage():
         
         # Test questions
         questions = [
-            "What was the total revenue for fiscal 2024?",
-            "What are the main business segments of Apple?",
+            "What was the total revenue for fiscal 2024??",
+            "What is the reported net income?",
             "What were the key risks mentioned in the report?"
         ]
         
