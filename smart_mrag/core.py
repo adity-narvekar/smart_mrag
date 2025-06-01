@@ -8,6 +8,9 @@ class SmartMRAG:
         google_api_key=None,
         llm_model="gpt-3.5-turbo",
         embedding_model="text-embedding-ada-002",
+        openai_endpoint=None,
+        anthropic_endpoint=None,
+        google_endpoint=None,
         chunk_size=1000,
         chunk_overlap=200,
         similarity_threshold=0.7,
@@ -24,6 +27,9 @@ class SmartMRAG:
             google_api_key (str, optional): Google API key. Required for Gemini models.
             llm_model (str): The LLM model to use. Defaults to "gpt-3.5-turbo".
             embedding_model (str): The embedding model to use. Defaults to "text-embedding-ada-002".
+            openai_endpoint (str, optional): OpenAI API endpoint. Defaults to official OpenAI endpoint.
+            anthropic_endpoint (str, optional): Anthropic API endpoint. Defaults to official Anthropic endpoint.
+            google_endpoint (str, optional): Google API endpoint. Defaults to official Google endpoint.
             chunk_size (int): Size of text chunks for processing. Defaults to 1000.
             chunk_overlap (int): Overlap between chunks. Defaults to 200.
             similarity_threshold (float): Threshold for similarity matching. Defaults to 0.7.
@@ -32,56 +38,56 @@ class SmartMRAG:
             top_k (int): Number of chunks to retrieve. Defaults to 5.
             
         Raises:
-            ValueError: If required API keys are missing for the chosen models.
+            ValueError: If required API keys are missing for the chosen models or if API keys are invalid for custom endpoints.
         """
-        # Get required API keys for this combination
-        required_keys = get_required_api_keys(llm_model, embedding_model)
-        
-        # Validate API keys
-        missing_keys = []
-        if "openai_api_key" in required_keys and not openai_api_key:
-            missing_keys.append("openai_api_key")
-        if "anthropic_api_key" in required_keys and not anthropic_api_key:
-            missing_keys.append("anthropic_api_key")
-        if "google_api_key" in required_keys and not google_api_key:
-            missing_keys.append("google_api_key")
-            
-        if missing_keys:
-            raise ValueError(
-                f"Missing required API keys: {', '.join(missing_keys)}\n"
-                f"This model combination requires: {', '.join(required_keys)}"
-            )
-            
-        # Get recommended models for guidance
-        recommended_models = get_recommended_models()
-        is_recommended = False
-        for provider, models in recommended_models.items():
-            if llm_model in models["llm_models"] and embedding_model in models["embedding_models"]:
-                is_recommended = True
-                break
-                
-        if not is_recommended:
-            print(
-                "Warning: Using a non-recommended model combination.\n"
-                "For best results, consider using one of these recommended combinations:\n"
-                f"{recommended_models}"
-            )
-            
-        # Initialize model configuration
-        self.model_config = ModelConfig(
+        # Initialize configuration
+        self.config = ModelConfig(
             llm_model=llm_model,
             embedding_model=embedding_model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            chunk_size=chunk_size,
+            chunk_overlap=chunk_overlap,
             openai_api_key=openai_api_key,
             anthropic_api_key=anthropic_api_key,
             google_api_key=google_api_key,
-            chunk_size=chunk_size,
-            chunk_overlap=chunk_overlap,
+            openai_endpoint=openai_endpoint,
+            anthropic_endpoint=anthropic_endpoint,
+            google_endpoint=google_endpoint,
             similarity_threshold=similarity_threshold,
-            max_tokens=max_tokens,
-            temperature=temperature,
             top_k=top_k
         )
         
+        # Validate API keys and endpoints
+        self._validate_api_keys_and_endpoints()
+        
+        # Initialize components
+        self._initialize_components()
+        
+    def _validate_api_keys_and_endpoints(self):
+        """Validate API keys and their compatibility with endpoints."""
+        # Check OpenAI
+        if "gpt" in self.config.llm_model.lower() or "text-embedding" in self.config.embedding_model.lower():
+            if not self.config.openai_api_key:
+                raise ValueError("OpenAI API key is required for OpenAI models and embeddings")
+            if self.config.openai_endpoint and not self.config.openai_endpoint.startswith("https://api.openai.com"):
+                print("Warning: Using custom OpenAI endpoint. Make sure your API key is valid for this endpoint.")
+        
+        # Check Anthropic
+        if "claude" in self.config.llm_model.lower():
+            if not self.config.anthropic_api_key:
+                raise ValueError("Anthropic API key is required for Claude models")
+            if self.config.anthropic_endpoint and not self.config.anthropic_endpoint.startswith("https://api.anthropic.com"):
+                print("Warning: Using custom Anthropic endpoint. Make sure your API key is valid for this endpoint.")
+        
+        # Check Google
+        if "gemini" in self.config.llm_model.lower():
+            if not self.config.google_api_key:
+                raise ValueError("Google API key is required for Gemini models")
+            if self.config.google_endpoint and not self.config.google_endpoint.startswith("https://generativelanguage.googleapis.com"):
+                print("Warning: Using custom Google endpoint. Make sure your API key is valid for this endpoint.")
+        
+    def _initialize_components(self):
         # Initialize document store and other components
         self.documents = []
         self.vector_store = None
