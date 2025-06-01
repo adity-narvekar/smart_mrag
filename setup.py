@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="smart_mrag",
-    version="0.1.0",
+    version="0.1.1",
     author="Aditya Narvekar",  # Replace with professor's name
     author_email=" Aditya.narvekar@gmail.com",  # Replace with professor's email
     description="A smart Multi-Retrieval Augmented Generation system",
