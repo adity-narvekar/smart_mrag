@@ -11,7 +11,7 @@ authors = [
 description = "A smart Multi-modal RAG (Retrieval Augmented Generation) library for processing PDFs with various language models"
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "MIT"}
+license = { text = "MIT" }
 dependencies = [
     "langchain>=0.3.14",
     "langchain-community>=0.3.14",

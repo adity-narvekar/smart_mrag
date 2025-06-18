@@ -1,4 +1,4 @@
-To Do:m
+To Do:
 
 Here's a detailed to-do list to complete before releasing your package to PyPI:
 
