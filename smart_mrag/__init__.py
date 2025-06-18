@@ -15,7 +15,7 @@ from .core import SmartMRAG
 from .utils import ModelConfig
 from tqdm import tqdm
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 # Define recommended model combinations
 RECOMMENDED_MODELS = {
