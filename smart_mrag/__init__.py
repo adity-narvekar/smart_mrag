@@ -13,6 +13,7 @@ import base64
 import io
 from .core import SmartMRAG
 from .utils import ModelConfig
+from tqdm import tqdm
 
 __version__ = "0.1.3"
 
@@ -222,7 +223,7 @@ class SmartMRAG:
         """Create FAISS vector store from document chunks."""
         try:
             # Get embeddings for all chunks
-            embeddings = [self._get_vector_embeddings(chunk.page_content) for chunk in self.chunks]
+            embeddings = [self._get_vector_embeddings(chunk.page_content) for chunk in tqdm(self.chunks, desc="Creating embeddings")]
             embeddings = np.array(embeddings).astype('float32')
             
             # Create and train FAISS index
