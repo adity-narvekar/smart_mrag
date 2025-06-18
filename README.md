@@ -124,7 +124,10 @@ pip install smart-mrag
 from smart_mrag import SmartMRAG
 
 # Initialize with default model (GPT-4o)
-mrag = SmartMRAG(openai_api_key="your-openai-api-key")
+mrag = SmartMRAG(
+    file_path="earnings_report.pdf",
+    api_key="your-openai-api-key"
+)
 
 # Load financial documents
 mrag.load_document("earnings_report.pdf")
@@ -136,6 +139,24 @@ print(response)
 
 # Compare financial data
 response = mrag.ask("Compare the revenue growth between the last two quarters")
+print(response)
+```
+
+### Using Custom Endpoints
+
+```python
+from smart_mrag import SmartMRAG
+
+# Initialize with custom endpoint
+mrag = SmartMRAG(
+    file_path="earnings_report.pdf",
+    api_key="your-openai-api-key",
+    model_name="gpt-4",
+    openai_endpoint="https://your-custom-endpoint.openai.azure.com/"  # Custom endpoint
+)
+
+# The rest of the usage remains the same
+response = mrag.ask("What were the key financial metrics?")
 print(response)
 ```
 

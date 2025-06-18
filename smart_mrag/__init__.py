@@ -14,7 +14,7 @@ import io
 from .core import SmartMRAG
 from .utils import ModelConfig
 
-__version__ = "0.1.0"
+__version__ = "0.1.3"
 
 # Define recommended model combinations
 RECOMMENDED_MODELS = {
@@ -118,7 +118,10 @@ class SmartMRAG:
         api_key: Optional[str] = None,
         model_name: str = "gpt-4o",
         embedding_model: Optional[str] = None,
-        embedding_api_key: Optional[str] = None
+        embedding_api_key: Optional[str] = None,
+        openai_endpoint: Optional[str] = None,
+        anthropic_endpoint: Optional[str] = None,
+        google_endpoint: Optional[str] = None
     ):
         """
         Initialize the SmartMRAG reader.
@@ -129,6 +132,9 @@ class SmartMRAG:
             model_name (str, optional): Model name. Defaults to "gpt-4o"
             embedding_model (str, optional): Embedding model name. If not provided, will use default for the selected model
             embedding_api_key (str, optional): API key for embedding model if different from main API key
+            openai_endpoint (str, optional): Custom OpenAI API endpoint
+            anthropic_endpoint (str, optional): Custom Anthropic API endpoint
+            google_endpoint (str, optional): Custom Google API endpoint
         """
         self.file_path = file_path
         self.model_name = model_name
@@ -162,10 +168,20 @@ class SmartMRAG:
         
         self.embedding_model = embedding_model
         
-        # Initialize OpenAI clients
-        self.client = OpenAI(api_key=self.api_key)
-        self.llm = ChatOpenAI(api_key=self.api_key, model=model_name)
-        self.embedding_client = OpenAI(api_key=self.embedding_api_key)
+        # Initialize OpenAI clients with custom endpoints if provided
+        self.client = OpenAI(
+            api_key=self.api_key,
+            base_url=openai_endpoint if openai_endpoint else None
+        )
+        self.llm = ChatOpenAI(
+            api_key=self.api_key,
+            model=model_name,
+            base_url=openai_endpoint if openai_endpoint else None
+        )
+        self.embedding_client = OpenAI(
+            api_key=self.embedding_api_key,
+            base_url=openai_endpoint if openai_endpoint else None
+        )
         
         # Initialize document processing
         self.docs = self._load_documents()
