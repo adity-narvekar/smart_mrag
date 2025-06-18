@@ -5,9 +5,9 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="smart_mrag",
-    version="0.1.1",
+    version="0.1.3",
     author="Aditya Narvekar",  # Replace with professor's name
-    author_email=" Aditya.narvekar@gmail.com",  # Replace with professor's email
+    author_email="Aditya.narvekar@gmail.com",  # Replace with professor's email
     description="A smart Multi-Retrieval Augmented Generation system",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -37,6 +37,7 @@ setup(
         "openai>=1.59.6",
         "numpy>=1.26.2",
         "anthropic>=0.5.0",
-        "google-generativeai>=0.3.0"
+        "google-generativeai>=0.3.0",
+        "pydantic>=2.0.0"
     ],
 ) 
