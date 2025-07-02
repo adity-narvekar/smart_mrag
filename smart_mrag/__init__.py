@@ -14,7 +14,7 @@ import io
 from .utils import ModelConfig
 from tqdm import tqdm
 
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 # Only OpenAI models
 RECOMMENDED_MODELS = {
