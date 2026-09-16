@@ -3,7 +3,6 @@ from typing import Optional
 import re
 
 class ModelConfig(BaseModel):
-    """Configuration for the RAG model, OpenAI only."""
     llm_model: str = "gpt-3.5-turbo"
     embedding_model: str = "text-embedding-ada-002"
     temperature: float = 0.7
@@ -12,6 +11,8 @@ class ModelConfig(BaseModel):
     chunk_overlap: int = 200
     openai_endpoint: Optional[str] = "https://api.openai.com/v1"
     openai_api_key: Optional[str] = None
+    anthropic_api_key: Optional[str] = None   # NEW
+    google_api_key: Optional[str] = None      # NEW
     similarity_threshold: float = 0.7
     top_k: int = 5
 

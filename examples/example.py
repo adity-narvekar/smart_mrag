@@ -3,25 +3,33 @@ import os
 
 def main():
     # Get API key from environment or prompt user
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        api_key = input("Please enter your API key: ")
+    model_name = model_map.get(model_choice, "gpt-4")
+
+    if model_name.startswith("claude"):
+        api_key = os.getenv("ANTHROPIC_API_KEY") or input("Please enter your Anthropic API key: ")
+    elif model_name.startswith("gemini"):
+        api_key = os.getenv("GOOGLE_API_KEY") or input("Please enter your Google API key: ")
+    else:
+        api_key = os.getenv("OPENAI_API_KEY") or input("Please enter your OpenAI API key: ")
     
-    # Get model choice from user
     print("\nAvailable default models:")
     print("1. gpt-4 (default)")
     print("2. gpt-4-turbo")
     print("3. gpt-3.5-turbo")
-    print("4. Custom model")
-    model_choice = input("\nEnter model number (1-4) or press Enter for default: ")
-    
+    print("4. claude-sonnet-4-5")
+    print("5. gemini-2.5-flash")
+    print("6. Custom model")
+    model_choice = input("\nEnter model number (1-6) or press Enter for default: ")
+
     model_map = {
         "1": "gpt-4",
         "2": "gpt-4-turbo",
-        "3": "gpt-3.5-turbo"
+        "3": "gpt-3.5-turbo",
+        "4": "claude-sonnet-4-5",
+        "5": "gemini-2.5-flash"
     }
     
-    if model_choice == "4":
+    if model_choice == "6":
         model_name = input("Enter your custom model name: ")
         # For custom models, we need embedding model
         embedding_model = input("Enter embedding model name: ")
